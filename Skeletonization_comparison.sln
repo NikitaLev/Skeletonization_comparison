@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.352
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Skeletonization_comparison", "Skeletonization_comparison\Skeletonization_comparison.csproj", "{2DE17F5B-F00A-4C63-A205-E40119F5DCC3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2DE17F5B-F00A-4C63-A205-E40119F5DCC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DE17F5B-F00A-4C63-A205-E40119F5DCC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DE17F5B-F00A-4C63-A205-E40119F5DCC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DE17F5B-F00A-4C63-A205-E40119F5DCC3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9459427C-F44E-4842-AB24-6748D3FE6496}
+	EndGlobalSection
+EndGlobal
