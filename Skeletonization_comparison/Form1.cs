@@ -26,25 +26,20 @@ namespace Skeletonization_comparison
             double[,] map = get_base_map(img);
             string s = "";
             double [,] f = get_base_map(img);
-
-            for (int i = 0; i < map.GetLength(0); i++)
-            {
-                for (int j = 0; j < map.GetLength(1); j++)
-                {
-                    s += "" + map[i, j];
-                }
-                s += "\n";
-            }
-            s += "\n";
+            Bitmap bp = new Bitmap(img, new Size(img.Width * 5, img.Height * 5));
+            pictureBox1.Image = bp;
+             
             map = sk2_0(map);
+            Bitmap res = new Bitmap(map.GetLength(1), map.GetLength(0));
             for (int i = 0; i < map.GetLength(0); i++)
             {
                 for (int j = 0; j < map.GetLength(1); j++)
                 {
-                    s += "" + map[i, j];
-                }
-                s += "\n";
+                    res.SetPixel(j, i, (map[i, j] == 1 ? Color.Black : Color.White));//s += "" + map[i, j];
+                } 
             }
+            res = new Bitmap(res, new Size(res.Width*5, res.Height*5));
+            pictureBox2.Image = res; 
             //int p = 0;
             //bool t = true; 
             //skeletization4(ref map);
@@ -82,27 +77,28 @@ namespace Skeletonization_comparison
         {
             //a= Clone2(a);
             string s = "";
-            for (int i = 0; i < a.GetLength(0); i++)
+            /*for (int i = 0; i < a.GetLength(0); i++)
             {
                 for (int j = 0; j < a.GetLength(1); j++)
                 {
                     s += "" + a[i, j];
                 }
                 s += "\n";
-            } 
+            } */
             while (Impr_Alg1(ref a))
-            { 
+            {
                 /*for (int i = 0; i < a.GetLength(0); i++)
-                {
-                    for (int j = 0; j < a.GetLength(1); j++)
-                    {
-                        s += "" + a[i, j];
-                    }
-                    s += "\n";
-                } */
+               {
+                   for (int j = 0; j < a.GetLength(1); j++)
+                   {
+                       s += "" + a[i, j];
+                   }
+                   s += "\n";
+               }
+               */
             }
             Impr_Alg2(ref a);
-            for (int i = 0; i < a.GetLength(0); i++)
+            /*for (int i = 0; i < a.GetLength(0); i++)
             {
                 for (int j = 0; j < a.GetLength(1); j++)
                 {
@@ -110,6 +106,7 @@ namespace Skeletonization_comparison
                 }
                 s += "\n";
             }
+            */
 
             return a;
         }
@@ -144,7 +141,7 @@ namespace Skeletonization_comparison
             for (int i = 1; i < a.GetLength(0) - 1; i++)
             {
                 for (int j = 1; j < a.GetLength(1) - 1; j++)
-                {
+                { 
                     if (b[i, j] == 0) continue;
                     double[] environment = get_environment2(b, i, j);
                     int sm = 0;
@@ -161,9 +158,10 @@ namespace Skeletonization_comparison
                     {
                         if (p == 1)
                         {
-                            if ((environment[4] == 1 ? 0 : 1) + environment[0] + environment[9] == 1 ||
+                            if ((environment[4] == 1 ? 0 : 1) + environment[0] + environment[9] == 1 &&
                                 (environment[2] == 1 ? 0 : 1) + environment[8] + environment[6] == 1)
                             {
+
                                 del = true;
                             }
                         }
@@ -179,21 +177,20 @@ namespace Skeletonization_comparison
 
         }
         public static void Impr_Alg2(ref double[,] a)
-        { 
+        {
+            //double[,] b = Clone(a);
             for (int i = 1; i < a.GetLength(0) - 1; i++)
             {
                 for (int j = 1; j < a.GetLength(1) - 1; j++)
                 {
                     if (a[i, j] == 0) continue;
-                    double[] environment = get_environment2(a, i, j);
-                    bool del = false;
-                    if (environment[2] * environment[4] == 1 && environment[7] == 0) del = true;
-                    if (environment[4] * environment[8] == 1 && environment[1] == 0) del = true;
-                    if (environment[0] * environment[2] == 1 && environment[5] == 0) del = true;
-                    if (environment[0] * environment[6] == 1 && environment[3] == 0) del = true;
-                    if (del)
+                    double[] environment = get_environment2(a, i, j); 
+                    if ((environment[2] * environment[4] == 1 && environment[7] == 0)  ||
+                       (environment[4] * environment[6] == 1 && environment[1] == 0)  ||
+                       (environment[0] * environment[2] == 1 && environment[5] == 0)  ||
+                       (environment[0] * environment[6] == 1 && environment[3] == 0)  ) 
                     {
-                        a[i, j] = 0;
+                        a[i, j] = 0; 
                     }
                 }
             } 
