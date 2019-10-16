@@ -28,8 +28,8 @@ namespace Skeletonization_comparison
             double [,] f = get_base_map(img);
             Bitmap bp = new Bitmap(img, new Size(img.Width * 5, img.Height * 5));
             pictureBox1.Image = bp;
-             
-            map = sk2_0(map);
+
+            map = skeletization4(ref map);//sk3_0(map); //sk2_0(map);// sk_Zang(map);//
             Bitmap res = new Bitmap(map.GetLength(1), map.GetLength(0));
             for (int i = 0; i < map.GetLength(0); i++)
             {
@@ -73,6 +73,25 @@ namespace Skeletonization_comparison
             }
             return map;
         }
+        public static double[,] sk_Zang(double[,] a)
+        {  
+            bool g = true; ; string s = "";
+             
+            while (sk_zang_s(ref a, g))
+            {
+                g = !g; 
+                for (int i = 0; i < a.GetLength(0); i++)
+                {
+                    for (int j = 0; j < a.GetLength(1); j++)
+                    {
+                        s += "" + a[i, j];
+                    }
+                    s += "\n";
+                }
+            } 
+
+            return a;
+        }
         public static double[,] sk2_0(double[,] a)
         {
             //a= Clone2(a);
@@ -85,8 +104,10 @@ namespace Skeletonization_comparison
                 }
                 s += "\n";
             } */
-            while (Impr_Alg1(ref a))
+            bool g = true; ;
+            while (Impr_Alg1(ref a, g))
             {
+                g = !g;
                 /*for (int i = 0; i < a.GetLength(0); i++)
                {
                    for (int j = 0; j < a.GetLength(1); j++)
@@ -94,19 +115,10 @@ namespace Skeletonization_comparison
                        s += "" + a[i, j];
                    }
                    s += "\n";
-               }
-               */
-            }
+               }*/
+            } 
             Impr_Alg2(ref a);
-            /*for (int i = 0; i < a.GetLength(0); i++)
-            {
-                for (int j = 0; j < a.GetLength(1); j++)
-                {
-                    s += "" + a[i, j]; 
-                }
-                s += "\n";
-            }
-            */
+            
 
             return a;
         }
@@ -134,7 +146,7 @@ namespace Skeletonization_comparison
             }
             return b;
         }
-        public static bool Impr_Alg1(ref double[,] a)
+        public static bool Impr_Alg1(ref double[,] a, bool g)
         {
             bool res = false;
             double[,] b = Clone(a);
@@ -158,10 +170,19 @@ namespace Skeletonization_comparison
                     {
                         if (p == 1)
                         {
-                            if ((environment[4] == 1 ? 0 : 1) + environment[0] + environment[9] == 1 &&
+                            /*if ((environment[4] == 1 ? 0 : 1) + environment[0] + environment[9] == 1 ||
                                 (environment[2] == 1 ? 0 : 1) + environment[8] + environment[6] == 1)
                             {
 
+                                del = true;
+                            }*/
+                            if ( g && (environment[4] == 1 ? 0 : 1) + environment[0] + environment[9] == 1 
+                                )
+                            { 
+                                del = true;
+                            }
+                            if(!g && (environment[2] == 1 ? 0 : 1) + environment[8] + environment[6] == 1)
+                            {
                                 del = true;
                             }
                         }
@@ -196,8 +217,9 @@ namespace Skeletonization_comparison
             } 
 
         }
-        public static bool sk_zang_s(ref double[,] a, double[,] b, bool f)//запись массива насыщенности в переменную 
+        public static bool sk_zang_s(ref double[,] a, bool f)//запись массива насыщенности в переменную 
         {
+            double[,] b = Clone(a);
             bool res = false;
             for (int i = 1; i < a.GetLength(0)-1; i++)
             {
@@ -294,26 +316,49 @@ namespace Skeletonization_comparison
                 (i+2<a.GetLength(0)?a[i+2,j]:0)};
 
         }
-        public static void skeletization4(ref double[,] sq)
+        static double[] get_environment3(double[,] a, int i, int j)//получение окружения
         {
-            double[,] sf = drying_out(sq);
-            double[,] f = drying_out(sq);
-            double max = mx(sf);
-            string s=""; 
-            while (del_min(ref sf, max, f )) 
-                { 
-                    //if (p++ % 1 != 0) continue; 
-                    for (int i = 0; i < sf.GetLength(0); i++)
-                    {
-                        for (int j = 0; j < sf.GetLength(1); j++)
-                        {
-                        s += (sf[i, j] < 10 ? sf[i, j] + " " : ""+sf[i, j]);//"" + sf[i, j]; 
-                            f[i,j]=sf[i,j];
-                        }
-                        s += "\n";
-                    }
+            return new double[11] {
+                a[i, j - 1] ,
+                a[i - 1, j - 1],
+                a[i - 1, j] ,
+                a[i - 1, j + 1] ,
+                a[i, j + 1] ,
+                a[i + 1, j + 1] ,
+                a[i + 1, j] ,
+                a[i + 1, j - 1] ,
+                a[i, j - 1] ,
+                a[i - 1, j - 1],
+                a[i - 1, j]};
+
+        }
+        public static double[,] skeletization4(ref double[,] map)
+        {
+            double[,] sf = drying_out(map); 
+            /*for(int i = 0; i < sf.GetLength(0); i++)
+            {
+                for (int j = 0; j < sf.GetLength(1); j++)
+                {
+                    s1 += sf[i,j] + "";
                 }
-            sq = sf;
+                s1 += "\n";
+            }
+            string s2 = "";*/
+            double max = mx(sf);
+            while (del_min(ref sf, max))
+            {
+               /*for (int i = 0; i < sf.GetLength(0); i++)
+                {
+                    for (int j = 0; j < sf.GetLength(1); j++)
+                    {
+                        s2 += sf[i, j]==0?"  ": sf[i, j] <10 ? " "+sf[i, j]: sf[i, j]+"";
+                    }
+                    s2 += "\n";
+                }*/
+                 
+            }
+            bin_matr(ref sf);
+            return sf;
         }
         static double[,] drying_out(double[,] a)
         {
@@ -356,7 +401,7 @@ namespace Skeletonization_comparison
             }
             return max;
         }
-        static bool del_min(ref double[,] a, double max, double[,] b )//удалить минимум, модуль 4
+        static bool del_min(ref double[,] a, double max)//удалить минимум, модуль 4
         {
             double min = max;
             bool res = false;
@@ -374,71 +419,247 @@ namespace Skeletonization_comparison
             {
                 for (int j = 1; j < a.GetLength(1) - 1; j++)
                 { 
-                    if (b[i, j] <= min && b[i, j] != 0)
-                    { 
-                            double[] environment = get_environment(b, i, j);
-                            int sm = 0;
-                            int p = 0;
+                    if (a[i, j] <= min && a[i, j] != 0)
+                    {
+                        double[] environment = get_environment(a, i, j);
+                        int sm = 0;
+                        int p = 0;
 
-                            if (environment[7] == 0 && environment[0] >= 1) p++;
-                            sm += environment[7] > 0 ? 1 : 0;
-                            for (int t = 0; t < 7; t++)
+                        if (environment[7] == 0 && environment[0] >= 1) p++;
+                        sm += environment[7] > 0 ? 1 : 0;
+                        for (int t = 0; t < 7; t++)
+                        {
+                            environment[t] = environment[t] > 0 ? 1 : 0;
+                            if (environment[t] == 0 && environment[t + 1] >= 1) p++;
+                            sm += environment[t] > 0 ? 1 : 0;
+                            if (p > 2)
+                                break;
+                        }
+
+                        if (sm > 2)
+                        {
+                            bool del = false;
+                            if (p == 1)
                             {
-                                environment[t] = environment[t] > 0 ? 1 : 0;
-                                if (environment[t] == 0 && environment[t + 1] >= 1) p++;
-                                sm += environment[t] > 0 ? 1 : 0;
-                                if (p > 2)
-                                    break;
+                                for (int t = 0; t < 6; t++)
+                                {
+                                    if (t % 2 == 0 && environment[t] == 1 && (environment[t + 1] == 1) )
+                                    {
+                                        del = true;
+                                        break;
+                                    }
+                                    else if (t % 2 != 0 && environment[t] == 1 && environment[t + 1] == 1)
+                                    {
+                                        del = true;
+                                        break;
+                                    }
+                                }
+                                if (!del)
+                                {
+                                    if ((environment[6] == 1 && environment[7] == 1) ||
+                                       (environment[7] == 1 && environment[0] == 1))
+                                    {
+                                        del = true;
+                                    }
+                                }
+                            }
+                            if (!del && p == 2)
+                            {
+                                if (environment[2] == 1 && environment[3] == 0 && environment[4] == 1 && (environment[5] == 1 || environment[6] == 1))
+                                {
+                                    del = true;
+                                }
                             }
 
-                            if (sm > 2)
+                            if (del)
                             {
-                                bool del = false;
-                                if (p == 1)
-                                {
-                                    for (int t = 4; t < 6; t++)
-                                    {
-                                        if (t % 2 == 0 && environment[t] == 1 && (environment[t + 1] == 1))
-                                        {
-                                            del = true;
-                                            break;
-                                        }
-                                        else if (t % 2 != 0 && environment[t] == 1 && environment[t + 1] == 1)
-                                        {
-                                            del = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!del)
-                                    {
-                                        if ((environment[6] == 1 && environment[7] == 1) ||
-                                           (environment[7] == 1 && environment[0] == 1))
-                                        {
-                                            del = true;
-                                        }
-                                    }
-                                } 
-                                if (del)
-                                {
-                                    res = true;
-                                    a[i, j] = 0;
-                                }
-                                else
-                                {
-                                    a[i, j]++;
-                                }
-
+                                res = true;
+                                a[i, j] = 0;
                             }
                             else
                             {
                                 a[i, j]++;
-                                res = true;
-                            } 
+                            }
+
+                        }
+                        else
+                        {
+                            a[i, j]++;
+                            res = true;
+                        }
                     }
 
                 }
             }
             return res;
+        }
+
+
+        /// <summary>
+        /// ///////////////////////////
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        /// 
+
+
+        public static double[,] sk3_0(double[,] a)
+        { 
+            double[,] f = drying_out(a);
+            string s = "";
+            double max = mx(f);
+            while (sk3_0_mod(ref f, max))
+            {
+                /*int n = 0;
+                 for (int i = 0; i < f.GetLength(0); i++)
+                {
+                    for (int j = 0; j < f.GetLength(1); j++)
+                    {
+                        s += (f[i, j] == 0 ? 0 + "" : "" + 1);//"" + sf[i, j];  
+                        n += f[i, j] == 0 ? 0 : 1;
+                    }
+                    s += "\n";
+                }
+                s += " - " + n+ "\n";*/
+            }
+            bin_matr(ref f);
+            Impr_Alg2(ref f);
+            return f;
+        }
+        public static bool sk3_0_mod(ref double[,] a, double max)
+        {
+            bool res = false;
+            double min = min_matr(a);
+            double[,] b = Clone(a);
+
+            for(int i = 1; i < a.GetLength(0)-1; i++)
+            {
+                for (int j = 1; j < a.GetLength(1) - 1; j++)
+                {
+                    if (b[i, j] != min) continue;
+                    string s = "";
+                    bool del = true;
+                    double[] environment = get_environment3(b, i, j);
+                    int num_environment = 0;
+                    int p = 0;
+                    for (int r = 0; r < environment.Length; r++)
+                    {
+                        environment[r] = environment[r] == 0 ? 0 : 1;
+                        if (2 <= r && r <= 9 && environment[r] == 1)
+                        {
+                            num_environment++;
+                            if (environment[r] == 0 && environment[r + 1] >= 1) p++;
+                        }
+                    }
+                    /*s += environment[1] + "" + environment[2] + "" + environment[3] + "\n" +
+                        environment[8] + "" + "x" + environment[4] + "\n" +
+                        environment[7] + "" + environment[6] + "" + environment[5] + "\n";*/
+                    if (num_environment > 2 && num_environment<=6)
+                    {
+                        for (int r = 2; r < environment.Length - 1; r++)
+                        {
+                            if (environment[r] == 0) continue;
+                            if ((r - 2) % 2 != 0 && environment[r - 1] + environment[r + 1] == 2)
+                                continue;
+                            if ((r - 2) % 2 == 0 && environment[r - 2] + environment[r - 1] + environment[r + 1] + environment[r + 2] >= 2)
+                                continue;
+                            del = false;
+                            break;
+
+                            //break;
+                        }
+                        if (del)
+                        {
+                            res = true;
+                            a[i, j] = 0;
+                        }
+                        else a[i, j]++;
+                    }
+                    else
+                    {
+                        a[i, j]++;
+                        res = true;
+                    }
+                    /*if (num_environment > 2 )
+                    {
+                        
+                        if (p == 1)
+                        {
+                            for (int t = 4; t < 6; t++)
+                            {
+                                if (t % 2 == 0 && environment[t] == 1 && (environment[t + 1] == 1))
+                                {
+                                    del = true;
+                                    break;
+                                }
+                                else if (t % 2 != 0 && environment[t] == 1 && environment[t + 1] == 1)
+                                {
+                                    del = true;
+                                    break;
+                                }
+                            }
+                            if (!del)
+                            {
+                                if ((environment[6] == 1 && environment[7] == 1) ||
+                                   (environment[7] == 1 && environment[0] == 1))
+                                {
+                                    del = true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (int r = 2; r < environment.Length - 1; r++)
+                            {
+                                if (environment[r] == 0) continue;
+                                if ((r - 2) % 2 != 0 && environment[r - 1] + environment[r + 1] == 2)
+                                    continue;
+                                if ((r - 2) % 2 == 0 && environment[r - 2] + environment[r - 1] + environment[r + 1] + environment[r + 2] >= 2)
+                                    continue;
+                                del = true;
+                                break;
+                            }
+                        }
+                        if (del)
+                        {
+                            res = true;
+                            a[i, j] = 0;
+                        }
+                        else a[i, j]++;
+                }
+                    else
+                    {
+                        a[i, j]++;
+                        res = true;
+                    }*/
+                }
+            }
+            return max==min?false:res;
+        }
+        public static double min_matr(double[,] a)
+        {
+            double min=double.MaxValue;
+            for (int i = 1; i < a.GetLength(0) - 1; i++)
+            {
+                for (int j = 1; j < a.GetLength(1) - 1; j++)
+                {
+                    if (a[i, j] != 0 && a[i, j] < min)
+                    {
+                        min = a[i, j];
+                    }
+                }
+            }
+            return min;
+        }
+        public static void bin_matr(ref double[,] a)
+        { 
+            for (int i = 1; i < a.GetLength(0) - 1; i++)
+            {
+                for (int j = 1; j < a.GetLength(1) - 1; j++)
+                {
+                    a[i, j] = a[i, j] == 0 ? 0 : 1;
+                }
+            } 
         }
     }
 }
