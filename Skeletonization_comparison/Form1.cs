@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -25,21 +26,61 @@ namespace Skeletonization_comparison
             Image img = Image.FromFile(filename);
             double[,] map = get_base_map(img);
             string s = "";
-            double [,] f = get_base_map(img);
-            Bitmap bp = new Bitmap(img, new Size(img.Width * 5, img.Height * 5));
-            pictureBox1.Image = bp;
+            int x=200;
+            pictureBox1.Image = new Bitmap(img, new Size(img.Width * x, img.Height * x));
+            double[,] r1, r2, r3, r4;
+            //sk3_0(map); //sk2_0(map);// sk_Zang(map);// 
+            //int start, end;
+            Image i2, i3, i4;
+            long p2, p3, p4;
 
-            map = skeletization4(ref map);//sk3_0(map); //sk2_0(map);// sk_Zang(map);//
-            Bitmap res = new Bitmap(map.GetLength(1), map.GetLength(0));
-            for (int i = 0; i < map.GetLength(0); i++)
-            {
-                for (int j = 0; j < map.GetLength(1); j++)
-                {
-                    res.SetPixel(j, i, (map[i, j] == 1 ? Color.Black : Color.White));//s += "" + map[i, j];
-                } 
-            }
-            res = new Bitmap(res, new Size(res.Width*5, res.Height*5));
-            pictureBox2.Image = res; 
+            /*start = Environment.TickCount;
+           r2 = skeletization4(map);
+           end = Environment.TickCount;
+           p2 = end - start;
+           i2 = gen_bitm(r2, x);
+
+           start = Environment.TickCount;
+           r3 = sk_Zang(map);
+           end = Environment.TickCount;
+           p3 = end - start;
+           i3 = gen_bitm(r3, x);
+
+
+           start = Environment.TickCount;
+           r4 = sk2_0(map);
+           end = Environment.TickCount;
+           p4 = end - start;
+           i4 = gen_bitm(r4, x);
+           */
+            Stopwatch watch =  Stopwatch.StartNew(); 
+            watch.Stop();
+
+
+            watch.Restart();// = //Stopwatch.StartNew();
+            r2 = skeletization4(map); 
+            p2 = watch.ElapsedMilliseconds;
+            i2 = gen_bitm(r2, x);
+
+            watch.Restart();//.Start();
+            r3 = sk_Zang(map);
+            watch.Stop();
+            p3 = watch.ElapsedMilliseconds;
+            i3 = gen_bitm(r3, x);
+
+
+            watch.Restart();
+            r4 = sk2_0(map); 
+            p4 = watch.ElapsedMilliseconds;
+            i4 = gen_bitm(r4, x);
+           
+
+            pictureBox2.Image = i2;
+            pictureBox3.Image = i3;
+            pictureBox4.Image = i4;
+            label10.Text = Convert.ToString(p2) + "ms";
+            label11.Text = Convert.ToString(p3) + "ms";
+            label12.Text = Convert.ToString(p4) + "ms";
             //int p = 0;
             //bool t = true; 
             //skeletization4(ref map);
@@ -59,6 +100,18 @@ namespace Skeletonization_comparison
             }*/
             int a = 0;
         }
+        public static Bitmap gen_bitm(double[,] map, int x)
+        {
+            Bitmap res = new Bitmap(map.GetLength(1), map.GetLength(0));
+            for (int i = 0; i < map.GetLength(0); i++)
+            {
+                for (int j = 0; j < map.GetLength(1); j++)
+                {
+                    res.SetPixel(j, i, (map[i, j] == 1 ? Color.Black : Color.White));//s += "" + map[i, j];
+                }
+            }
+            return new Bitmap(res, new Size(res.Width * x, res.Height * x));
+        }
         public static double[,] get_base_map(Image img)//запись массива насыщенности в переменную 
         {
             Bitmap b = new Bitmap(img);
@@ -75,27 +128,27 @@ namespace Skeletonization_comparison
         }
         public static double[,] sk_Zang(double[,] a)
         {  
-            bool g = true; ; string s = "";
-             
-            while (sk_zang_s(ref a, g))
+            bool g = true; //; string s = "";
+            double[,] d = Clone(a);
+            while (sk_zang_s(ref d, g))
             {
                 g = !g; 
-                for (int i = 0; i < a.GetLength(0); i++)
+                /*for (int i = 0; i < a.GetLength(0); i++)
                 {
                     for (int j = 0; j < a.GetLength(1); j++)
                     {
                         s += "" + a[i, j];
                     }
                     s += "\n";
-                }
+                }*/
             } 
 
-            return a;
+            return d;
         }
         public static double[,] sk2_0(double[,] a)
         {
             //a= Clone2(a);
-            string s = "";
+            double[,] d = Clone(a); 
             /*for (int i = 0; i < a.GetLength(0); i++)
             {
                 for (int j = 0; j < a.GetLength(1); j++)
@@ -105,7 +158,7 @@ namespace Skeletonization_comparison
                 s += "\n";
             } */
             bool g = true; ;
-            while (Impr_Alg1(ref a, g))
+            while (Impr_Alg1(ref d, g))
             {
                 g = !g;
                 /*for (int i = 0; i < a.GetLength(0); i++)
@@ -117,10 +170,10 @@ namespace Skeletonization_comparison
                    s += "\n";
                }*/
             } 
-            Impr_Alg2(ref a);
+            Impr_Alg2(ref d);
             
 
-            return a;
+            return d;
         }
         public static double[,] Clone2(double[,] a)
         {
@@ -332,9 +385,9 @@ namespace Skeletonization_comparison
                 a[i - 1, j]};
 
         }
-        public static double[,] skeletization4(ref double[,] map)
+        public static double[,] skeletization4(double[,] map)
         {
-            double[,] sf = drying_out(map); 
+            double[,] d = drying_out(map); 
             /*for(int i = 0; i < sf.GetLength(0); i++)
             {
                 for (int j = 0; j < sf.GetLength(1); j++)
@@ -344,8 +397,8 @@ namespace Skeletonization_comparison
                 s1 += "\n";
             }
             string s2 = "";*/
-            double max = mx(sf);
-            while (del_min(ref sf, max))
+            double max = mx(d);
+            while (del_min(ref d, max))
             {
                /*for (int i = 0; i < sf.GetLength(0); i++)
                 {
@@ -357,8 +410,8 @@ namespace Skeletonization_comparison
                 }*/
                  
             }
-            bin_matr(ref sf);
-            return sf;
+            bin_matr(ref d);
+            return d;
         }
         static double[,] drying_out(double[,] a)
         {
