@@ -26,13 +26,13 @@ namespace Skeletonization_comparison
             Image img = Image.FromFile(filename);
             double[,] map = get_base_map(img);
             string s = "";
-            int x=200;
+            int x=1;
             pictureBox1.Image = new Bitmap(img, new Size(img.Width * x, img.Height * x));
-            double[,] r1, r2, r3, r4;
+            double[,] r1, r2, r3, r4, r5;
             //sk3_0(map); //sk2_0(map);// sk_Zang(map);// 
             //int start, end;
-            Image i2, i3, i4;
-            long p2, p3, p4;
+            Image i2, i3, i4, i5;
+            long p2, p3, p4, p5;
 
             /*start = Environment.TickCount;
            r2 = skeletization4(map);
@@ -73,14 +73,20 @@ namespace Skeletonization_comparison
             r4 = sk2_0(map); 
             p4 = watch.ElapsedMilliseconds;
             i4 = gen_bitm(r4, x);
-           
+
+            watch.Restart();
+            r5 = sk5_0(map);
+            p5 = watch.ElapsedMilliseconds;
+            i5 = gen_bitm(r5, x);
 
             pictureBox2.Image = i2;
             pictureBox3.Image = i3;
             pictureBox4.Image = i4;
+            pictureBox5.Image = i5;
             label10.Text = Convert.ToString(p2) + "ms";
             label11.Text = Convert.ToString(p3) + "ms";
             label12.Text = Convert.ToString(p4) + "ms";
+            label5.Text = Convert.ToString(p5) + "ms";
             //int p = 0;
             //bool t = true; 
             //skeletization4(ref map);
@@ -369,6 +375,21 @@ namespace Skeletonization_comparison
                 (i+2<a.GetLength(0)?a[i+2,j]:0)};
 
         }
+        static double[] get_environment4(double[,] a, int i, int j)//получение окружения
+        {
+            return new double[10] { 
+                a[i - 1, j - 1],
+                a[i - 1, j] ,
+                a[i - 1, j + 1] ,
+                a[i, j + 1] ,
+                a[i + 1, j + 1] ,
+                a[i + 1, j] ,
+                a[i + 1, j - 1] ,
+                a[i, j - 1] ,
+                a[i - 1, j - 1],
+                a[i - 1, j]};
+
+        }
         static double[] get_environment3(double[,] a, int i, int j)//получение окружения
         {
             return new double[11] {
@@ -516,13 +537,13 @@ namespace Skeletonization_comparison
                                     }
                                 }
                             }
-                            if (!del && p == 2)
+                            if (!del && p >= 2)
                             {
                                 if (environment[2] == 1 && environment[3] == 0 && environment[4] == 1 && (environment[5] == 1 || environment[6] == 1))
                                 {
                                     del = true;
                                 }
-                            }
+                            }/**/
 
                             if (del)
                             {
@@ -712,7 +733,276 @@ namespace Skeletonization_comparison
                 {
                     a[i, j] = a[i, j] == 0 ? 0 : 1;
                 }
-            } 
+            }
+        }
+        public static double  num_p( double[,] a)
+        {
+            int res = 0;
+            for (int i = 1; i < a.GetLength(0) - 1; i++)
+            {
+                for (int j = 1; j < a.GetLength(1) - 1; j++)
+                {
+                    if (a[i, j] > 0) res++;
+                }
+            }
+            return res;
+        }
+
+        //////////////
+        public static double[,] sk5_0(double[,] map)
+        {
+            double[,] d = drying_out(map);
+            /*string s = "";
+            for(int i = 0; i < d.GetLength(0); i++)
+            {
+                for (int j = 0; j < d.GetLength(1); j++)
+                {
+                    s  += d[i, j] == 0 ? "   " : d[i, j] < 10 ? "  " + d[i, j] : d[i, j] + "";
+                    }
+                s  += "\n";
+            }
+            s += num_p(d) + "\n";*/
+            double max = mx(d); 
+            while (del_min2(ref d, max ))
+            { 
+                /*for (int i = 0; i < d.GetLength(0); i++)
+                {
+                    for (int j = 0; j < d.GetLength(1); j++)
+                    {
+                        //s += d[i, j] == 0 ? "  " : 1+"";
+                        s += d[i, j]==0?"  ": d[i, j] <10 ? d[i, j]+ " " : d[i, j]+"";
+                    }
+                    s += "\n";
+                }
+                s += num_p(d)+"\n";*/
+
+
+            }
+            bin_matr(ref d); 
+            return d;
+        }
+        static double[,] drying_out2(double[,] a)
+        {
+            double[,] res = new double[a.GetLength(0), a.GetLength(1)];
+            for (int i = 1; i < a.GetLength(0) - 1; i++)
+            {
+                for (int j = 1; j < a.GetLength(1) - 1; j++)
+                {
+                    if (a[i, j] >= 1)
+                    {
+                        int n = 0;
+                        bool f = true;
+                        while (f)
+                        {
+                            if (a[i, j + n] == 0 || a[i, j - n] == 0 || a[i + n, j] == 0 || a[i - n,j] == 0)
+                            {
+                                res[i, j] = n;
+                                f = false;
+                            }
+                            n++;
+                        }
+                    }
+                }
+            }  
+            /*for (int i = 1; i < a.GetLength(1) - 1; i++)
+            {
+                for (int j = 1; j < a.GetLength(0) - 1; j++)
+                {
+                    if (a[j, i] >= 1)
+                    {
+                        int n = 0;
+                        bool f = true;
+                        while (f)
+                        {
+                            if (a[j+n, i] == 0 || a[j-n, i] == 0)
+                            {
+                                res[j, i] += n;
+                                f = false;
+                            }
+                            n++;
+                        }
+                    }
+                }
+            }*/
+            return res;
+
+        } 
+        static bool del_min2(ref double[,] a, double max )//удалить минимум, модуль 4
+        {
+            double min = max;
+            bool res = false; 
+            for (int i = 1; i < a.GetLength(0) - 1; i++)
+            {
+                for (int j = 1; j < a.GetLength(1) - 1; j++)
+                {
+                    if (a[i, j] < min && a[i, j] != 0)
+                    {
+                        min = a[i, j];
+                    }
+                }
+            }
+            for (int i = 1; i < a.GetLength(0) - 1; i++)
+            {
+                for (int j = 1; j < a.GetLength(1) - 1; j++)
+                {
+                    if (a[i, j] == min)
+                    {
+                        double[] environment = get_environment4(a, i, j);
+                        int sm = 0;
+                        int p = 0;
+                        for (int t = 0; t <environment.Length; t++)
+                        {
+                            environment[t] = environment[t] > 0 ? 1 : 0; 
+                            if(1<=t && t <= 8)
+                            {
+                                if ((t - 1) % 2 == 0)
+                                {
+                                    if (environment[t] == 0 && environment[t + 1] >= 1) 
+                                        p++;
+                                }
+                                else
+                                {
+                                    if(environment[t] == 0 && environment[t + 1]>=1 && environment[t - 1]==0) 
+                                        p++;
+                                }
+                                sm+=(int)environment[t];
+                            }
+                        }
+                        if (sm >=1 && sm<=5)
+                        {
+                            bool del = false;
+                            if (p == 1)
+                            {
+                                for (int t = 1; t < 9; t++)
+                                {
+                                    if (t-1 % 2 == 0 && environment[t] == 1 && (environment[t + 1] == 1 || environment[t + 2] == 1))
+                                    {
+                                        del = true;
+                                        break;
+                                    }
+                                    else if (t-1 % 2 != 0 && environment[t] == 1 && environment[t + 1] == 1)
+                                    {
+                                        del = true;
+                                        break;
+                                    }
+                                } 
+                            }
+
+                            /*if (!del && p >= 2)
+                            {
+                                if (environment[2] == 1 && environment[3] == 0 && environment[4] == 1 && (environment[5] == 1 || environment[6] == 1))
+                                {
+                                    del = true;
+                                }
+                            } */
+                           if (del)
+                           {
+                               res = true;
+                               a[i, j] = 0;
+                           }
+                           else
+                           {
+                               a[i, j]++;
+                           }
+
+                       }
+                       else
+                       {
+                           a[i, j]++;
+                           res = true;
+                       }
+                       /*double[] environment = get_environment(a, i, j);
+                       int sm = 0;
+                       int p = 0;
+
+                       if (environment[7] == 0 && environment[0] >= 1) p++;
+                       sm += environment[7] > 0 ? 1 : 0;
+                       for (int t = 0; t < 7; t++)
+                       {
+                           environment[t] = environment[t] > 0 ? 1 : 0;
+                           if(t%2==0)
+                               if (environment[t] == 0 && environment[t + 1] >= 1) p++;
+                           sm += environment[t] > 0 ? 1 : 0;
+                           if (p > 2)
+                               break;
+                       }
+                       if(sm==1 && environment[7] == 1)
+                       { 
+                           res = true;
+                           a[i, j] = 0;
+                           continue;
+                       }
+                       if (sm >= 1&& sm < 6 )
+                       {
+                           bool del = false;
+                           if (p == 1)
+                           {
+                               for (int t = 0; t < 6; t++)
+                               {
+                                   if (t % 2 == 0 && environment[t] == 1 && (environment[t + 1] == 1))
+                                   {
+                                       del = true;
+                                       break;
+                                   }
+                                   else if (t % 2 != 0 && environment[t] == 1 && environment[t + 1] == 1)
+                                   {
+                                       del = true;
+                                       break;
+                                   }
+                               }
+                               if (!del)
+                               {
+                                   if ((environment[6] == 1 && environment[7] == 1) ||
+                                      (environment[7] == 1 && environment[0] == 1))
+                                   {
+                                       del = true;
+                                   }
+                               }
+                           }
+
+                           if (!del && p >= 2)
+                            {
+                                if (environment[2] == 1 && environment[3] == 0 && environment[4] == 1 && (environment[5] == 1 || environment[6] == 1))
+                                {
+                                    del = true;
+                                }
+                            }
+
+                            /*if ( f&&!del && p >= 2)
+                            {
+                                if (environment[0] == 1 && environment[1] == 0 && environment[2] == 1 && (environment[3] == 1 || environment[4] == 1))
+                                {
+                                    del = true;
+                                }
+                            }
+                            if (!f && !del && p >= 2)
+                            {
+                                if (environment[0] == 1 && environment[7] == 0 && environment[6] == 1 && (environment[5] == 1 || environment[4] == 1))
+                                {
+                                    del = true;
+                                }
+                            } 
+                           if (del)
+                           {
+                               res = true;
+                               a[i, j] = 0;
+                           }
+                           else
+                           {
+                               a[i, j]++;
+                           }
+
+                       }
+                       else
+                       {
+                           a[i, j]++;
+                           res = true;
+                       }*/
+                        }
+
+                    }
+            }
+            return res;
         }
     }
 }
